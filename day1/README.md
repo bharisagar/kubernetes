@@ -266,27 +266,294 @@ In production, workloads are usually managed by Deployments, StatefulSets, Jobs,
 
 ## Prerequisites
 
-Required tools:
+For local practice, use Minikube. Minikube runs a single-node Kubernetes cluster on your laptop or lab machine.
 
-- Docker Desktop
-- Minikube
-- kubectl
-- PowerShell
+Minimum requirements:
 
-Check versions:
+- 2 CPUs or more
+- 2 GB RAM minimum
+- 20 GB free disk space
+- Internet access
+- Docker installed and running
+- kubectl installed
+- Minikube installed
+
+Teaching point:
+
+```text
+Docker runs containers on one machine.
+Kubernetes manages containers across a cluster.
+Minikube gives us a local Kubernetes cluster for practice without cloud cost.
+```
+
+AWS analogy:
+
+| Kubernetes | AWS ECS / Fargate Analogy |
+| --- | --- |
+| Cluster | ECS cluster or EKS cluster |
+| Node | EC2 instance or worker machine |
+| Pod | ECS task |
+| Container | Container inside ECS task |
+| Service | ECS service or service discovery |
+| kubectl | AWS CLI for Kubernetes |
+
+## Install Docker Desktop On Windows
+
+1. Download Docker Desktop from the official Docker website.
+2. Install Docker Desktop.
+3. Start Docker Desktop.
+4. Make sure Docker is using the Linux container engine.
+5. Reopen PowerShell after installation.
+
+Verify Docker:
 
 ```powershell
+docker --version
 docker version
+docker ps
+```
+
+Expected result:
+
+```text
+Docker should show client and server information.
+docker ps should run without a connection error.
+```
+
+If Docker is not running, start Docker Desktop and retry.
+
+## Install kubectl On Windows
+
+Option 1: Install with winget:
+
+```powershell
+winget install -e --id Kubernetes.kubectl
+```
+
+Option 2: Install with Chocolatey:
+
+```powershell
+choco install kubernetes-cli
+```
+
+Verify kubectl:
+
+```powershell
+kubectl version --client
+```
+
+Expected result:
+
+```text
+kubectl should print the client version.
+```
+
+## Install Minikube On Windows
+
+Option 1: Install with winget:
+
+```powershell
+winget install -e --id Kubernetes.minikube
+```
+
+Option 2: Install with Chocolatey:
+
+```powershell
+choco install minikube
+```
+
+Verify Minikube:
+
+```powershell
+minikube version
+```
+
+Expected result:
+
+```text
+minikube version should print the installed version.
+```
+
+## Install Minikube On Ubuntu Or EC2 Linux
+
+Use this path if students are practicing on Ubuntu or an EC2 Ubuntu instance.
+
+Update packages:
+
+```bash
+sudo apt-get update
+```
+
+Install required tools:
+
+```bash
+sudo apt-get install -y curl ca-certificates conntrack
+```
+
+Install Docker if it is not already installed:
+
+```bash
+sudo apt-get install -y docker.io
+sudo systemctl enable docker
+sudo systemctl start docker
+sudo usermod -aG docker $USER
+```
+
+Important:
+
+```text
+After adding the user to the docker group, log out and log in again.
+```
+
+Verify Docker:
+
+```bash
+docker --version
+docker ps
+```
+
+Install Minikube:
+
+```bash
+curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+rm minikube-linux-amd64
+```
+
+Verify Minikube:
+
+```bash
+minikube version
+```
+
+Install kubectl on Linux:
+
+```bash
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+rm kubectl
+```
+
+Verify kubectl:
+
+```bash
+kubectl version --client
+```
+
+Alternative if kubectl is not separately installed:
+
+```bash
+alias kubectl="minikube kubectl --"
+```
+
+## Verify Tools Before Starting Cluster
+
+Windows PowerShell:
+
+```powershell
+docker --version
+docker ps
 minikube version
 kubectl version --client
 ```
 
-Validated local versions:
+Linux or Ubuntu:
+
+```bash
+docker --version
+docker ps
+minikube version
+kubectl version --client
+```
+
+Validated local versions on this machine:
 
 ```text
 Docker CLI: 29.5.2
 Minikube: v1.36.0
 kubectl client: v1.34.1
+```
+
+## Installation Command Flow
+
+Use this section when teaching installation live.
+
+### Windows PowerShell
+
+```powershell
+# Check Docker first
+docker --version
+docker version
+docker ps
+
+# Install kubectl if missing
+winget install -e --id Kubernetes.kubectl
+
+# Install Minikube if missing
+winget install -e --id Kubernetes.minikube
+
+# Reopen PowerShell, then verify
+kubectl version --client
+minikube version
+
+# Start local Kubernetes cluster
+minikube start --driver=docker
+
+# Check cluster status
+minikube status
+kubectl cluster-info
+kubectl get nodes
+kubectl get pods -A
+```
+
+### Ubuntu Or EC2 Linux
+
+```bash
+# Update package index
+sudo apt-get update
+
+# Install dependencies
+sudo apt-get install -y curl ca-certificates conntrack
+
+# Install Docker if missing
+sudo apt-get install -y docker.io
+sudo systemctl enable docker
+sudo systemctl start docker
+sudo usermod -aG docker $USER
+
+# Log out and log in again after usermod, then verify Docker
+docker --version
+docker ps
+
+# Install Minikube
+curl -LO https://github.com/kubernetes/minikube/releases/latest/download/minikube-linux-amd64
+sudo install minikube-linux-amd64 /usr/local/bin/minikube
+rm minikube-linux-amd64
+
+# Install kubectl
+curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
+sudo install -o root -g root -m 0755 kubectl /usr/local/bin/kubectl
+rm kubectl
+
+# Verify tools
+minikube version
+kubectl version --client
+
+# Start local Kubernetes cluster
+minikube start --driver=docker
+
+# Check cluster status
+minikube status
+kubectl cluster-info
+kubectl get nodes
+kubectl get pods -A
+```
+
+If `kubectl` is not installed separately on Linux, use Minikube's built-in kubectl:
+
+```bash
+alias kubectl="minikube kubectl --"
+kubectl get nodes
 ```
 
 ## Start The Local Cluster
@@ -582,3 +849,7 @@ YAML manifests make Kubernetes resources declarative, repeatable, reviewable, an
 - [x] Pod reaches `Running` state.
 - [x] Pod logs are readable.
 - [x] Command execution inside the container works.
+
+
+
+

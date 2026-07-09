@@ -23,6 +23,14 @@ By the end of this course, you should be able to:
 |-- day1/
 |   |-- README.md
 |   |-- nginx-pod.yaml
+|-- day2/
+|   |-- README.md
+|   |-- nginx-deployment.yaml
+|-- day3/
+|   |-- README.md
+|   |-- web-deployment.yaml
+|   |-- clusterip-service.yaml
+|   |-- nodeport-service.yaml
 ```
 
 ## 7-Day Roadmap
@@ -62,6 +70,39 @@ Image: nginx:1.27
 Container check: nginx/1.27.5
 ```
 
+Day 2 has been completed locally with Minikube.
+
+Validated workload:
+
+```text
+Namespace: day2
+Manifest: day2/nginx-deployment.yaml
+Deployment: nginx-deployment
+Initial replicas: 3/3 available
+Scale test: 3 -> 5 -> 2 replicas
+Rolling update: nginx:1.27 -> nginx:1.28
+Rollback: nginx:1.28 -> nginx:1.27
+Self-healing: deleted one pod and ReplicaSet created a replacement
+Container check after rollback: nginx/1.27.5
+```
+
+Day 3 has been completed locally with Minikube.
+
+Validated workload:
+
+```text
+Namespace: day3
+Deployment: web
+Pods: 3/3 Running
+ClusterIP Service: web-clusterip, 10.102.38.244:80
+NodePort Service: web-nodeport, 80:30080/TCP
+Endpoints: 10.244.0.23:80, 10.244.0.24:80, 10.244.0.25:80
+EndpointSlices: populated for both Services
+Internal Service test: Welcome to nginx!
+NodePort test from Minikube node: HTTP/1.1 200 OK
+Host access test with port-forward: HTTP 200, Welcome to nginx!
+```
+
 ## Quick Start
 
 Start the local Kubernetes cluster:
@@ -89,6 +130,40 @@ kubectl logs nginx-pod -n day1
 kubectl exec nginx-pod -n day1 -- nginx -v
 ```
 
+Run the Day 2 Deployment lab:
+
+```powershell
+kubectl create namespace day2
+kubectl apply -f day2/nginx-deployment.yaml
+kubectl get deployment -n day2
+kubectl get replicaset -n day2
+kubectl get pods -n day2 -o wide
+kubectl scale deployment nginx-deployment --replicas=5 -n day2
+kubectl set image deployment/nginx-deployment nginx=nginx:1.28 -n day2
+kubectl rollout status deployment/nginx-deployment -n day2
+kubectl rollout undo deployment/nginx-deployment -n day2
+```
+
+Run the Day 3 Services lab:
+
+```powershell
+kubectl create namespace day3
+kubectl apply -f day3/web-deployment.yaml
+kubectl apply -f day3/clusterip-service.yaml
+kubectl apply -f day3/nodeport-service.yaml
+kubectl get deployment,svc,pods -n day3 -o wide
+kubectl get endpointslice -n day3
+kubectl run network-client -n day3 --image=busybox:1.36 --restart=Never --command -- sleep 3600
+kubectl exec network-client -n day3 -- wget -qO- http://web-clusterip
+minikube ip
+minikube ssh -- curl -I http://<minikube-ip>:30080/
+# Terminal 1 - keep this running
+kubectl port-forward svc/web-clusterip -n day3 8080:80
+
+# Terminal 2 - test while port-forward is running
+Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/
+```
+
 Clean up the Day 1 lab:
 
 ```powershell
@@ -96,7 +171,24 @@ kubectl delete -f day1/nginx-pod.yaml
 kubectl delete namespace day1
 ```
 
+Clean up the Day 2 lab:
+
+```powershell
+kubectl delete namespace day2
+```
+
+Clean up the Day 3 lab:
+
+```powershell
+kubectl delete namespace day3
+```
+
 ## Detailed Notes
 
 - [Day 1: Kubernetes Basics, Architecture, Setup, Namespace, and Pod](day1/README.md)
+- [Day 2: YAML, Labels, Selectors, ReplicaSets, and Deployments](day2/README.md)
+- [Day 3: Services and Kubernetes Networking](day3/README.md)
 - [Full 7-Day Roadmap](kubernetes-zero-to-hero-7-days.md)
+
+
+

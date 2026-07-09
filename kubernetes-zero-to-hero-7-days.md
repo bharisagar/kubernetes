@@ -72,25 +72,44 @@ kubectl rollout undo deployment/nginx-deployment -n day2
 
 Focus:
 
-- Pod IP behavior
-- Service selectors
-- ClusterIP, NodePort, LoadBalancer, ExternalName
-- Port, targetPort, and nodePort
+- Pod IP behavior and why Pod IPs should not be used directly.
+- Service selectors and Pod labels.
+- ClusterIP, NodePort, LoadBalancer, and ExternalName Service types.
+- `port`, `targetPort`, and `nodePort`.
+- Endpoints and EndpointSlices.
+- Internal and external Service testing.
 
 Practical outcome:
 
-- Expose a Deployment with a ClusterIP Service.
-- Access it using `kubectl port-forward`.
-- Create a NodePort Service and inspect endpoints.
+- Create a web Deployment with 3 nginx Pods.
+- Expose it internally with a ClusterIP Service.
+- Verify endpoints and EndpointSlices.
+- Test internal access from a temporary BusyBox Pod.
+- Expose it with a NodePort Service.
+- Validate NodePort from the Minikube node.
+- Validate host access using `kubectl port-forward`.
 
 Key commands:
 
 ```powershell
-kubectl get svc -n day3
-kubectl get endpoints -n day3
-kubectl describe svc web-service -n day3
-kubectl port-forward svc/web-service 8080:80 -n day3
+kubectl create namespace day3
+kubectl apply -f day3/web-deployment.yaml
+kubectl apply -f day3/clusterip-service.yaml
+kubectl apply -f day3/nodeport-service.yaml
+kubectl get deployment,svc,pods -n day3 -o wide
+kubectl get endpointslice -n day3
+kubectl run network-client -n day3 --image=busybox:1.36 --restart=Never --command -- sleep 3600
+kubectl exec network-client -n day3 -- wget -qO- http://web-clusterip
+minikube ip
+minikube ssh -- curl -I http://<minikube-ip>:30080/
+# Terminal 1 - keep this running
+kubectl port-forward svc/web-clusterip -n day3 8080:80
+
+# Terminal 2 - test while port-forward is running
+Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/
 ```
+
+Detailed module: [day3/README.md](day3/README.md)
 
 ## Day 4 - ConfigMaps, Secrets, And Storage
 
@@ -208,3 +227,7 @@ helm uninstall todo
 - Debug pod startup and runtime issues.
 - Understand ingress, autoscaling, DaemonSets, and RBAC.
 - Package workloads using Helm.
+
+
+
+
