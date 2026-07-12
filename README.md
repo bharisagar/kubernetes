@@ -1,5 +1,4 @@
-﻿# Day 2 - YAML, Labels, Selectors, ReplicaSets, And Deployments
-
+# Day 2 - YAML, Labels, Selectors, ReplicaSets, And Deployments
 ## Goal
 
 Day 2 moves from a standalone Pod to a production-style Kubernetes workload called a Deployment.
@@ -401,10 +400,130 @@ Make sure Minikube is running and kubectl is connected.
 ```powershell
 minikube status
 kubectl config current-context
+=======
+﻿# Kubernetes Zero To Hero
+
+A practical Kubernetes learning repository focused on real-world workflows, clear architecture notes, and repeatable hands-on labs.
+
+## Learning Objectives
+
+By the end of this course, you should be able to:
+
+- Explain Kubernetes architecture and core components.
+- Deploy workloads using YAML manifests.
+- Expose applications with Kubernetes Services.
+- Manage configuration using ConfigMaps and Secrets.
+- Add health checks, resource requests, and limits.
+- Debug common pod and cluster issues.
+- Package Kubernetes workloads with Helm.
+
+## Repository Structure
+
+```text
+.
+|-- README.md
+|-- kubernetes-zero-to-hero-7-days.md
+|-- day1/
+|   |-- README.md
+|   |-- nginx-pod.yaml
+|-- day2/
+|   |-- README.md
+|   |-- nginx-deployment.yaml
+|-- day3/
+|   |-- README.md
+|   |-- web-deployment.yaml
+|   |-- clusterip-service.yaml
+|   |-- nodeport-service.yaml
+```
+
+## 7-Day Roadmap
+
+| Day | Focus Area | Practical Outcome |
+| --- | --- | --- |
+| Day 1 | Kubernetes architecture, Minikube setup, namespaces, pods | Run the first nginx pod from YAML |
+| Day 2 | YAML structure, labels, selectors, ReplicaSets, Deployments | Deploy and scale nginx with a Deployment |
+| Day 3 | Services and networking | Expose an application with ClusterIP, NodePort, and port-forwarding |
+| Day 4 | ConfigMaps, Secrets, and storage | Inject configuration and sensitive data into workloads |
+| Day 5 | Probes, resources, and debugging | Add health checks and troubleshoot common failures |
+| Day 6 | Ingress, autoscaling, DaemonSets, and RBAC | Understand production-oriented Kubernetes features |
+| Day 7 | Helm and final project | Package and deploy a complete Kubernetes application |
+
+## Current Lab Status
+
+Day 1 has been completed locally with Minikube.
+
+Validated environment:
+
+```text
+Docker CLI: 29.5.2
+kubectl client: v1.34.1
+Minikube: v1.36.0
+Kubernetes cluster: v1.33.1
+Node: minikube Ready
+```
+
+Validated workload:
+
+```text
+Namespace: day1
+Manifest: day1/nginx-pod.yaml
+Pod: nginx-pod
+Status: Running
+Image: nginx:1.27
+Container check: nginx/1.27.5
+```
+
+Day 2 has been completed locally with Minikube.
+
+Validated workload:
+
+```text
+Namespace: day2
+Manifest: day2/nginx-deployment.yaml
+Deployment: nginx-deployment
+Initial replicas: 3/3 available
+Scale test: 3 -> 5 -> 2 replicas
+Rolling update: nginx:1.27 -> nginx:1.28
+Rollback: nginx:1.28 -> nginx:1.27
+Self-healing: deleted one pod and ReplicaSet created a replacement
+Container check after rollback: nginx/1.27.5
+```
+
+Day 3 has been completed locally with Minikube.
+
+Validated workload:
+
+```text
+Namespace: day3
+Deployment: web
+Pods: 3/3 Running
+ClusterIP Service: web-clusterip, 10.102.38.244:80
+NodePort Service: web-nodeport, 80:30080/TCP
+Endpoints: 10.244.0.23:80, 10.244.0.24:80, 10.244.0.25:80
+EndpointSlices: populated for both Services
+Internal Service test: Welcome to nginx!
+NodePort test from Minikube node: HTTP/1.1 200 OK
+Host access test with port-forward: HTTP 200, Welcome to nginx!
+```
+
+## Quick Start
+
+Start the local Kubernetes cluster:
+
+```powershell
+minikube start --driver=docker
+```
+
+Verify cluster access:
+
+```powershell
+kubectl cluster-info
+>>>>>>> a4fdd1840774fd2d8005c27a4a717429e0b5b3f4
 kubectl get nodes
 kubectl get pods -A
 ```
 
+<<<<<<< HEAD
 Expected context:
 
 ```text
@@ -929,11 +1048,67 @@ This returns the Deployment to the YAML value.
 ## Cleanup
 
 Delete all Day 2 resources:
+=======
+Run the Day 1 pod lab:
+
+```powershell
+kubectl create namespace day1
+kubectl apply -f day1/nginx-pod.yaml
+kubectl get pods -n day1 -o wide
+kubectl describe pod nginx-pod -n day1
+kubectl logs nginx-pod -n day1
+kubectl exec nginx-pod -n day1 -- nginx -v
+```
+
+Run the Day 2 Deployment lab:
+
+```powershell
+kubectl create namespace day2
+kubectl apply -f day2/nginx-deployment.yaml
+kubectl get deployment -n day2
+kubectl get replicaset -n day2
+kubectl get pods -n day2 -o wide
+kubectl scale deployment nginx-deployment --replicas=5 -n day2
+kubectl set image deployment/nginx-deployment nginx=nginx:1.28 -n day2
+kubectl rollout status deployment/nginx-deployment -n day2
+kubectl rollout undo deployment/nginx-deployment -n day2
+```
+
+Run the Day 3 Services lab:
+
+```powershell
+kubectl create namespace day3
+kubectl apply -f day3/web-deployment.yaml
+kubectl apply -f day3/clusterip-service.yaml
+kubectl apply -f day3/nodeport-service.yaml
+kubectl get deployment,svc,pods -n day3 -o wide
+kubectl get endpointslice -n day3
+kubectl run network-client -n day3 --image=busybox:1.36 --restart=Never --command -- sleep 3600
+kubectl exec network-client -n day3 -- wget -qO- http://web-clusterip
+minikube ip
+minikube ssh -- curl -I http://<minikube-ip>:30080/
+# Terminal 1 - keep this running
+kubectl port-forward svc/web-clusterip -n day3 8080:80
+
+# Terminal 2 - test while port-forward is running
+Invoke-WebRequest -UseBasicParsing http://127.0.0.1:8080/
+```
+
+Clean up the Day 1 lab:
+
+```powershell
+kubectl delete -f day1/nginx-pod.yaml
+kubectl delete namespace day1
+```
+
+Clean up the Day 2 lab:
+>>>>>>> a4fdd1840774fd2d8005c27a4a717429e0b5b3f4
 
 ```powershell
 kubectl delete namespace day2
 ```
 
+<<<<<<< HEAD
 Or delete only the Deployment:
 
 ```powershell
@@ -1071,3 +1246,16 @@ Deleted pod: nginx-deployment-66fc78d4b8-7mk6p
 Replacement pod created: nginx-deployment-66fc78d4b8-99xj9
 Deployment returned to: 2/2 available
 ```
+=======
+Clean up the Day 3 lab:
+
+```powershell
+kubectl delete namespace day3
+```
+
+## Detailed Notes
+
+- [Day 1: Kubernetes Basics, Architecture, Setup, Namespace, and Pod](day1/README.md)
+- [Day 2: YAML, Labels, Selectors, ReplicaSets, and Deployments](day2/README.md)
+- [Day 3: Services and Kubernetes Networking](day3/README.md)
+- [Full 7-Day Roadmap](kubernetes-zero-to-hero-7-days.md)
