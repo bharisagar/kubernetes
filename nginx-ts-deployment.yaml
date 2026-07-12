@@ -1,0 +1,23 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-ts-deployment
+  namespace: tsday2
+  labels:
+    app: tsnginx
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: tsnginx
+  template:
+    metadata:
+      labels:
+        app: tsnginx
+    spec:
+      containers:
+        - name: nginx
+          image: nginx:1.27
+          ports:
+            - containerPort: 80
