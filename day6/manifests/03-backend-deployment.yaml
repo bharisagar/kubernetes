@@ -25,8 +25,14 @@ spec:
             - -c
           args:
             - |
-              echo '<h1>Backend API</h1><p>Reached through ClusterIP Service DNS</p>' > /usr/share/nginx/html/index.html
+              printf '<h1>Backend API</h1><p>Hello, networking class!</p><p>Served by Pod: %s</p>\n' "$HOSTNAME" > /usr/share/nginx/html/index.html
               nginx -g 'daemon off;'
           ports:
             - name: http
               containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            initialDelaySeconds: 2
+            periodSeconds: 3

@@ -175,7 +175,7 @@ Focus:
 - ClusterIP, NodePort, LoadBalancer, and ExternalName Services.
 - Ingress traffic and egress traffic.
 - Cluster networking with CNI plugins.
-- Common CNI plugins: Flannel, Calico, Weave Net, and Cilium.
+- CNI roles and examples: Flannel, Calico, and Cilium.
 - Pod CIDR, Service CIDR, node IPs, Pod IPs, and Service IPs.
 - NetworkPolicy behavior using Calico on Minikube.
 - Networking troubleshooting using `get`, `describe`, `exec`, `nslookup`, `wget`, and events.
@@ -183,7 +183,7 @@ Focus:
 Practical outcome:
 
 - Start Minikube with Calico CNI.
-- Deploy frontend and backend workloads.
+- Build a School Portal with a frontend that proxies /api to the backend Service.
 - Expose frontend using NodePort.
 - Expose backend using ClusterIP.
 - Test backend DNS from a client Pod.
@@ -193,32 +193,14 @@ Practical outcome:
 - Apply an allow policy for DNS and backend traffic.
 - Debug common Service, DNS, NodePort, and policy issues.
 
-Key commands:
+Start the dedicated lesson profile:
 
 ```powershell
-minikube delete
-minikube start --driver=docker --cni=calico
-kubectl cluster-info
-kubectl get pods -n kube-system
-kubectl apply -f day6/manifests/00-namespace.yaml
-kubectl apply -f day6/manifests/01-frontend-deployment.yaml
-kubectl apply -f day6/manifests/02-frontend-nodeport-service.yaml
-kubectl apply -f day6/manifests/03-backend-deployment.yaml
-kubectl apply -f day6/manifests/04-backend-clusterip-service.yaml
-kubectl apply -f day6/manifests/05-externalname-service.yaml
-kubectl apply -f day6/manifests/06-network-client-pod.yaml
-kubectl get pods -n day6 -o wide
-kubectl get svc -n day6
-kubectl exec -n day6 network-client -- nslookup backend-service.day6.svc.cluster.local
-kubectl exec -n day6 network-client -- wget -qO- http://backend-service
-kubectl exec -n day6 network-client -- nslookup external-api.day6.svc.cluster.local
-minikube service frontend-nodeport -n day6 --url
-kubectl apply -f day6/manifests/07-deny-egress-networkpolicy.yaml
-kubectl apply -f day6/manifests/08-allow-dns-and-backend-egress.yaml
-kubectl get networkpolicy -n day6
-kubectl delete namespace day6 --ignore-not-found=true
-minikube stop
+minikube start -p day6-networking --driver=docker --cni=calico
+kubectl config use-context day6-networking
 ```
+
+Follow the detailed module's project steps in order: backend first, frontend and client next, then baseline tests, deny egress, and selective allowances. It includes diagrams, YAML explanations, expected outputs, a localhost experiment, troubleshooting, and scoped cleanup.
 
 Detailed module: [day6/README.md](day6/README.md)
 

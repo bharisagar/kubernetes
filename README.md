@@ -125,7 +125,7 @@ Day 6 networking project has been prepared for class.
 
 ```text
 Namespace: day6
-Project: Kubernetes networking deep dive
+Project: School Portal with frontend-to-backend routing
 Raw manifests: frontend, backend, Services, ExternalName, debug client, NetworkPolicy
 Cluster note: use Minikube with Calico CNI for the NetworkPolicy practical
 ```
@@ -201,30 +201,22 @@ minikube addons disable ingress
 minikube stop
 ```
 
-Run the Day 6 networking practical:
+Run the Day 6 School Portal networking lesson:
+
+Follow the [teacher-style Day 6 guide](day6/README.md) for architecture diagrams, explained YAML, predicted results, and the staged NetworkPolicy experiment. Start a separate profile:
 
 ```powershell
-minikube delete
-minikube start --driver=docker --cni=calico
-kubectl apply -f day6/manifests/00-namespace.yaml
-kubectl apply -f day6/manifests/01-frontend-deployment.yaml
-kubectl apply -f day6/manifests/02-frontend-nodeport-service.yaml
-kubectl apply -f day6/manifests/03-backend-deployment.yaml
-kubectl apply -f day6/manifests/04-backend-clusterip-service.yaml
-kubectl apply -f day6/manifests/05-externalname-service.yaml
-kubectl apply -f day6/manifests/06-network-client-pod.yaml
-kubectl get pods -n day6 -o wide
-kubectl get svc -n day6
-kubectl exec -n day6 network-client -- nslookup backend-service.day6.svc.cluster.local
-kubectl exec -n day6 network-client -- wget -qO- http://backend-service
-minikube service frontend-nodeport -n day6 --url
+minikube start -p day6-networking --driver=docker --cni=calico
+kubectl config use-context day6-networking
 ```
+
+Continue with project step 2 in the guide. Create the backend Service before the frontend, and apply policies only when you reach the policy exercise.
 
 Clean up Day 6:
 
 ```powershell
-kubectl delete namespace day6 --ignore-not-found=true
-minikube stop
+kubectl --context day6-networking delete namespace day6 --ignore-not-found=true
+minikube stop -p day6-networking
 ```
 
 Run the Day 7 ConfigMaps, Secrets, storage, and debugging practical:
