@@ -1,0 +1,3 @@
+ANTI_AFFINITY_SCALE_PASS
+Backend scaled to 3 replicas on 2 eligible worker nodes.
+Two replicas ran on separate workers; one replica stayed Pending as required.

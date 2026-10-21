@@ -1,0 +1,4 @@
+NAME                       READY   STATUS    NODE
+backend-...-fvmcx         1/1     Running   k3d-mini-shop-agent-1
+backend-...-zbv5x         1/1     Running   k3d-mini-shop-agent-0
+frontend-...-gdwts        1/1     Running   k3d-mini-shop-agent-0

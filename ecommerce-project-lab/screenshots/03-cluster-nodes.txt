@@ -1,0 +1,4 @@
+NAME                     STATUS   ROLE
+k3d-mini-shop-agent-0    Ready    app worker
+k3d-mini-shop-agent-1    Ready    app worker
+k3d-mini-shop-server-0   Ready    control-plane

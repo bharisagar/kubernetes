@@ -1,0 +1,3 @@
+AFFINITY_GATE_PASS
+Frontend was Pending with backend deployment absent.
+After backend replicas were restored, the frontend became Running.
