@@ -12,9 +12,42 @@ The cluster has one k3d server and two worker nodes. Both workers are labeled `l
 
 ## Prerequisites and resource impact
 
-Install Docker Desktop in Linux-container mode, k3d, kubectl, and Git. This lab creates three containers for the k3d cluster plus the application Pods. The setup script pins k3s `v1.33.5-k3s1` because newer k3s releases can reject Docker Desktop environments exposing cgroup v1. On an 8 GB Windows laptop, close unused containers and applications, use the default k3d memory settings, and stop/delete the cluster after class. Building the two small images downloads base images and needs internet access.
+Use a Windows 10/11 laptop with PowerShell 5.1 or PowerShell 7, internet access, and about 4 GB of free memory while the lab is running. Docker Desktop runs the Linux containers, k3d creates one server and two worker containers, and the project adds two small application containers. On an 8 GB laptop, close unused applications and stop the cluster after class. No public container registry is required.
 
-Do not run the setup script until Docker Desktop is running and you have reviewed the resource impact above. The repository currently does not require a public container registry.
+The setup script pins k3s `v1.33.5-k3s1` because newer k3s releases can reject some Docker Desktop environments that expose cgroup v1. Docker Desktop must be running before creating the cluster.
+
+### Windows installation
+
+Open **PowerShell as Administrator** and install the tools with Windows Package Manager (`winget`):
+
+```powershell
+winget install --id Docker.DockerDesktop -e --source winget
+winget install --id Kubernetes.kubectl -e --source winget
+winget install --id Rancher.k3d -e --source winget
+winget install --id Git.Git -e --source winget
+```
+
+If `winget` is unavailable, install **App Installer** from the Microsoft Store, then rerun the commands. Docker Desktop also requires the WSL 2 backend. If Docker Desktop reports that WSL is missing, run these commands in an Administrator PowerShell, restart Windows, and start Docker Desktop:
+
+```powershell
+wsl --install
+wsl --update
+```
+
+Close and reopen PowerShell after installation so the new commands are on `PATH`. Start Docker Desktop, wait until it says **Engine running**, and select **Linux containers** from its tray menu if that option is shown.
+
+Verify every prerequisite before continuing:
+
+```powershell
+docker --version
+docker info
+kubectl version --client
+k3d version
+git --version
+wsl --status
+```
+
+Expected output: each command prints a version or status, and `docker info` returns server information without a daemon error. If `docker info` fails, start Docker Desktop and wait for the engine. If a command is not recognized, reopen PowerShell after installation. Do not run `scripts/01-create-cluster.ps1` until these checks succeed.
 
 ## File map
 
@@ -289,7 +322,3 @@ kubectl apply --dry-run=client -f k8s/10-backend.yaml
 kubectl apply --dry-run=client -f k8s/20-frontend.yaml
 kubectl apply --dry-run=client -f k8s/30-network-policy.yaml
 ```
-
-## Screenshots for GitHub
-
-Use the checklist in [screenshots/README.md](screenshots/README.md). Capture only the cluster state and application output needed to teach the lab; never include credentials or unrelated applications.
