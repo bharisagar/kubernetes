@@ -10,6 +10,8 @@ The cluster has one k3d server and two worker nodes. Both workers are labeled `l
 
 [View the Mermaid architecture diagrams](architecture.md).
 
+[Read the complete concept reference: What We Learned](WHAT-WE-LEARNED.md).
+
 ## Prerequisites and resource impact
 
 Use a Windows 10/11 laptop with PowerShell 5.1 or PowerShell 7, internet access, and about 4 GB of free memory while the lab is running. Docker Desktop runs the Linux containers, k3d creates one server and two worker containers, and the project adds two small application containers. On an 8 GB laptop, close unused applications and stop the cluster after class. No public container registry is required.
